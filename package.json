@@ -1,0 +1,63 @@
+{
+  "name": "@entrig/react-native",
+  "version": "0.0.1",
+  "description": "Entrig | Push Notifications for Supabase",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "bin": {
+    "entrig-react-native": "./bin/setup.js"
+  },
+  "files": [
+    "build/",
+    "ios/",
+    "android/",
+    "plugin/",
+    "bin/",
+    "src/",
+    "app.plugin.js",
+    "react-native.config.js"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf build/",
+    "lint": "eslint src/ --ext .ts,.tsx",
+    "test": "jest",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "react-native",
+    "expo",
+    "entrig",
+    "push-notifications",
+    "supabase",
+    "notifications",
+    "apns",
+    "fcm"
+  ],
+  "repository": "https://github.com/entrig/entrig-react-native",
+  "bugs": {
+    "url": "https://github.com/entrig/entrig-react-native/issues"
+  },
+  "author": "entrig <team@entrig.com> (https://github.com/entrig)",
+  "license": "MIT",
+  "homepage": "https://github.com/entrig/entrig-react-native#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "peerDependenciesMeta": {
+    "expo": {
+      "optional": true
+    }
+  },
+  "expo": {
+    "autolinking": {
+      "nativeModulesDir": "."
+    }
+  }
+}
