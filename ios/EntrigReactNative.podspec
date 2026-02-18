@@ -24,6 +24,7 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
     'SWIFT_INCLUDE_PATHS' => '$(PODS_ROOT)/Headers/Public',
+    'CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES' => 'YES',
   }
 
   s.source_files = "**/*.{h,m,mm,swift,hpp,cpp}"

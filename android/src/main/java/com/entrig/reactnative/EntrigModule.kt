@@ -28,7 +28,7 @@ class EntrigModule(reactContext: ReactApplicationContext) :
     // Register for activity events (onNewIntent, onActivityResult)
     reactApplicationContext.addActivityEventListener(this)
 
-    val currentActivity = currentActivity
+    val currentActivity = reactApplicationContext.currentActivity
     // Set activity on SDK for foreground detection
     currentActivity?.let { Entrig.setActivity(it) }
 
@@ -54,11 +54,11 @@ class EntrigModule(reactContext: ReactApplicationContext) :
   }
 
   // ActivityEventListener — called when a new intent arrives (notification tap while app is open)
-  override fun onNewIntent(intent: Intent?) {
-    intent?.let { Entrig.handleIntent(it) }
+  override fun onNewIntent(intent: Intent) {
+    Entrig.handleIntent(intent)
   }
 
-  override fun onActivityResult(activity: Activity?, requestCode: Int, resultCode: Int, data: Intent?) {
+  override fun onActivityResult(activity: Activity, requestCode: Int, resultCode: Int, data: Intent?) {
     // Not used
   }
 
@@ -93,7 +93,7 @@ class EntrigModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun register(userId: String, isDebug: Boolean?, promise: Promise) {
-    val activity = currentActivity
+    val activity = reactApplicationContext.currentActivity
     if (activity == null) {
       promise.reject("NO_ACTIVITY", "Activity not available")
       return
@@ -112,7 +112,7 @@ class EntrigModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun requestPermission(promise: Promise) {
-    val activity = currentActivity
+    val activity = reactApplicationContext.currentActivity
     if (activity == null) {
       promise.reject("NO_ACTIVITY", "Activity not available")
       return
