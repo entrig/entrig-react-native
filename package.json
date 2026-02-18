@@ -15,7 +15,8 @@
     "bin/",
     "src/",
     "app.plugin.js",
-    "react-native.config.js"
+    "react-native.config.js",
+    "EntrigReactNative.podspec"
   ],
   "scripts": {
     "build": "tsc",

@@ -158,16 +158,14 @@ function patchSwiftAppDelegate(filePath) {
   const delegateMethods = `
   // MARK: - Entrig Push Notification Handling
 
-  override func application(_ application: UIApplication,
+  func application(_ application: UIApplication,
       didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
     Entrig.didRegisterForRemoteNotifications(deviceToken: deviceToken)
-    super.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
   }
 
-  override func application(_ application: UIApplication,
+  func application(_ application: UIApplication,
       didFailToRegisterForRemoteNotificationsWithError error: Error) {
     Entrig.didFailToRegisterForRemoteNotifications(error: error)
-    super.application(application, didFailToRegisterForRemoteNotificationsWithError: error)
   }
 
   func userNotificationCenter(_ center: UNUserNotificationCenter,

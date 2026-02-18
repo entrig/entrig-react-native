@@ -2,7 +2,7 @@ import { NativeModules, NativeEventEmitter } from 'react-native';
 
 import { EntrigConfig, NotificationEvent } from './types';
 
-const RNEntrigModule = NativeModules.Entrig;
+const RNEntrigModule = NativeModules.EntrigModule;
 
 if (!RNEntrigModule) {
   throw new Error('Native Entrig module not found. Make sure you have linked the library correctly.');

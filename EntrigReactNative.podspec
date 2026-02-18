@@ -1,6 +1,6 @@
 require 'json'
 
-package = JSON.parse(File.read(File.join(__dir__, '..', 'package.json')))
+package = JSON.parse(File.read(File.join(__dir__, 'package.json')))
 
 Pod::Spec.new do |s|
   s.name           = 'EntrigReactNative'
@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
     :ios => '15.1'
   }
   s.swift_version  = '5.9'
-  s.source         = { git: 'https://github.com/entrig/entrig-react-native', tag: s.version.to_s }
+  s.source         = { path: '.' }
   s.static_framework = true
 
   s.dependency 'React-Core'
@@ -27,5 +27,5 @@ Pod::Spec.new do |s|
     'CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES' => 'YES',
   }
 
-  s.source_files = "**/*.{h,m,mm,swift,hpp,cpp}"
+  s.source_files = "ios/**/*.{h,m,mm,swift,hpp,cpp}"
 end

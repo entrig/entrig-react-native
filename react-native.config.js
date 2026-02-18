@@ -1,7 +1,9 @@
 module.exports = {
   dependency: {
     platforms: {
-      ios: {},
+      ios: {
+        podspecPath: './EntrigReactNative.podspec',
+      },
       android: {},
     },
   },
