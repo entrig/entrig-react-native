@@ -39,7 +39,8 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "@entrig/react-native"
     ],
     "experiments": {
       "typedRoutes": true,

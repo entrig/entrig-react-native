@@ -13,11 +13,13 @@
     "android/",
     "plugin/",
     "bin/",
-    "src/",
     "app.plugin.js",
     "react-native.config.js",
     "EntrigReactNative.podspec"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf build/",
@@ -42,16 +44,20 @@
   "author": "entrig <team@entrig.com> (https://github.com/entrig)",
   "license": "MIT",
   "homepage": "https://github.com/entrig/entrig-react-native#readme",
-  "dependencies": {},
   "devDependencies": {
+    "@expo/config-plugins": "^54.0.4",
     "@types/react": "^19.0.0",
     "typescript": "^5.0.0"
   },
   "peerDependencies": {
+    "@expo/config-plugins": ">=7.0.0",
     "react": "*",
     "react-native": "*"
   },
   "peerDependenciesMeta": {
+    "@expo/config-plugins": {
+      "optional": true
+    },
     "expo": {
       "optional": true
     }

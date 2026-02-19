@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -38,12 +37,10 @@ class EntrigModule(reactContext: ReactApplicationContext) :
     }
 
     Entrig.setOnForegroundNotificationListener { notification ->
-      Log.d("EntrigModule", "Foreground notification: ${notification.toMap()}")
       sendEvent("onForegroundNotification", Arguments.makeNativeMap(notification.toMap() as Map<String, Any?>))
     }
 
     Entrig.setOnNotificationOpenedListener { notification ->
-      Log.d("EntrigModule", "Notification opened: ${notification.toMap()}")
       sendEvent("onNotificationOpened", Arguments.makeNativeMap(notification.toMap() as Map<String, Any?>))
     }
   }
