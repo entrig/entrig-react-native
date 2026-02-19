@@ -45,7 +45,6 @@
   "license": "MIT",
   "homepage": "https://github.com/entrig/entrig-react-native#readme",
   "devDependencies": {
-    "@expo/config-plugins": "^54.0.4",
     "@types/react": "^19.0.0",
     "typescript": "^5.0.0"
   },
