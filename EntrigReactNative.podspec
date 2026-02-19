@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
   s.static_framework = true
 
   s.dependency 'React-Core'
-  s.dependency 'EntrigSDK', '0.0.8-dev'
+  s.dependency 'EntrigSDK', '1.0.0'
 
   # Swift/Objective-C compatibility
   s.pod_target_xcconfig = {
