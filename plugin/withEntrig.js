@@ -88,6 +88,9 @@ function patchSwiftAppDelegate(filePath) {
     return;
   }
 
+  // Detect if this is an Expo SDK 54+ AppDelegate (inherits from ExpoAppDelegate)
+  const isExpoSDK54 = content.includes('ExpoAppDelegate');
+
   // 1. Add imports
   if (!content.includes('import UserNotifications')) {
     const importMatch = content.match(/^import \w+/m);
@@ -111,7 +114,11 @@ function patchSwiftAppDelegate(filePath) {
 
   // 2. Add UNUserNotificationCenterDelegate conformance to the class
   if (!content.includes('UNUserNotificationCenterDelegate')) {
-    const classPattern = /(class\s+AppDelegate\s*:\s*[^{]+)\{/;
+    // For Expo SDK 54+, match pattern like: public class AppDelegate: ExpoAppDelegate {
+    // For older RN/Expo, match pattern like: class AppDelegate: UIResponder, UIApplicationDelegate {
+    const classPattern = isExpoSDK54
+      ? /(public\s+class\s+AppDelegate\s*:\s*ExpoAppDelegate)\s*\{/
+      : /(class\s+AppDelegate\s*:\s*[^{]+)\{/;
     const classMatch = content.match(classPattern);
     if (classMatch) {
       const declaration = classMatch[1].trimEnd();
@@ -124,9 +131,17 @@ function patchSwiftAppDelegate(filePath) {
 
   // 3. Add setup code inside didFinishLaunchingWithOptions
   if (!content.includes('Entrig.checkLaunchNotification')) {
+    // Pattern matches both old and new Expo formats (with/without override keyword and multiline)
     const didFinishPattern =
-      /func application\(\s*_\s+application:\s*UIApplication,\s*didFinishLaunchingWithOptions\s+launchOptions:[^)]*\)\s*->\s*Bool\s*\{/s;
-    const didFinishMatch = content.match(didFinishPattern);
+      /(public\s+)?override\s+func\s+application\(\s*_\s+application:\s*UIApplication,\s*didFinishLaunchingWithOptions\s+launchOptions:[^)]*\)\s*->\s*Bool\s*\{/s;
+    let didFinishMatch = content.match(didFinishPattern);
+
+    // Fallback for older format without override
+    if (!didFinishMatch) {
+      didFinishMatch = content.match(
+        /func\s+application\(\s*_\s+application:\s*UIApplication,\s*didFinishLaunchingWithOptions\s+launchOptions:[^)]*\)\s*->\s*Bool\s*\{/s
+      );
+    }
 
     if (didFinishMatch) {
       const insertPos = didFinishMatch.index + didFinishMatch[0].length;
@@ -141,31 +156,41 @@ function patchSwiftAppDelegate(filePath) {
 
   // 4. Add delegate methods before the closing brace of the AppDelegate class
   if (!content.includes('didRegisterForRemoteNotificationsWithDeviceToken')) {
+    // Use 'public' keyword for Expo SDK 54+
+    const publicKeyword = isExpoSDK54 ? 'public ' : '';
     const delegateMethods = `
   // MARK: - Entrig Push Notification Handling
 
-  override func application(_ application: UIApplication,
-      didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+  ${publicKeyword}override func application(
+    _ application: UIApplication,
+    didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+  ) {
     Entrig.didRegisterForRemoteNotifications(deviceToken: deviceToken)
     super.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
   }
 
-  override func application(_ application: UIApplication,
-      didFailToRegisterForRemoteNotificationsWithError error: Error) {
+  ${publicKeyword}override func application(
+    _ application: UIApplication,
+    didFailToRegisterForRemoteNotificationsWithError error: Error
+  ) {
     Entrig.didFailToRegisterForRemoteNotifications(error: error)
     super.application(application, didFailToRegisterForRemoteNotificationsWithError: error)
   }
 
-  func userNotificationCenter(_ center: UNUserNotificationCenter,
-                               willPresent notification: UNNotification,
-                               withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+  ${publicKeyword}func userNotificationCenter(
+    _ center: UNUserNotificationCenter,
+    willPresent notification: UNNotification,
+    withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+  ) {
     Entrig.willPresentNotification(notification)
     completionHandler(Entrig.getPresentationOptions())
   }
 
-  func userNotificationCenter(_ center: UNUserNotificationCenter,
-                               didReceive response: UNNotificationResponse,
-                               withCompletionHandler completionHandler: @escaping () -> Void) {
+  ${publicKeyword}func userNotificationCenter(
+    _ center: UNUserNotificationCenter,
+    didReceive response: UNNotificationResponse,
+    withCompletionHandler completionHandler: @escaping () -> Void
+  ) {
     Entrig.didReceiveNotification(response)
     completionHandler()
   }

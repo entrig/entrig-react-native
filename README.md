@@ -50,7 +50,6 @@ Send push notifications to your React Native app, triggered by database events.
 
    </details>
 
-   > **Note:** If you've configured iOS in your Firebase console, you can use FCM for both Android and iOS, which will skip the APNs setup step.
 
 4. **Upload APNs Key** (iOS) - Upload `.p8` key file with Team ID, Bundle ID, and Key ID to Entrig
 
@@ -105,30 +104,7 @@ No setup required for Android. We'll take care of it.
 
 ### iOS
 
-#### Expo (Managed Workflow)
-
-Add the plugin to your `app.json`:
-
-```json
-{
-  "expo": {
-    "plugins": ["@entrig/react-native"]
-  }
-}
-```
-
-Then run prebuild:
-
-```bash
-npx expo prebuild
-```
-
-This automatically configures:
-- AppDelegate with Entrig notification handlers
-- Entitlements with push notification capabilities
-- Info.plist with background modes
-
-#### Bare React Native — Automatic Setup (Recommended)
+#### React Native — Automatic Setup (Recommended)
 
 Run this command in your project root:
 
@@ -147,14 +123,14 @@ This automatically configures:
 <details>
 <summary>Manual AppDelegate setup (click to expand)</summary>
 
-#### 1. Enable Push Notifications in Xcode
+##### 1. Enable Push Notifications in Xcode
 
 - Open `ios/YourApp.xcworkspace`
 - Select your target → Signing & Capabilities
 - Click `+ Capability` → Push Notifications
 - Click `+ Capability` → Background Modes → Enable `Remote notifications`
 
-#### 2. Update AppDelegate.swift
+##### 2. Update AppDelegate.swift
 
 Add `import UserNotifications` and `import EntrigSDK`, add `UNUserNotificationCenterDelegate` conformance, then add the notification methods.
 
@@ -267,6 +243,157 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
 </details>
 
+
+#### Expo (Managed Workflow)
+
+**Step 1: Add the config plugin**
+
+Add the plugin to your `app.json`:
+
+```json
+{
+  "expo": {
+    "plugins": ["@entrig/react-native"]
+  }
+}
+```
+
+**Step 2: Run prebuild**
+
+```bash
+npx expo prebuild
+# or
+npx expo run:ios
+npx expo run:android
+```
+
+The plugin automatically configures:
+- ✅ AppDelegate with Entrig notification handlers (supports Expo SDK 54+)
+- ✅ Info.plist with background modes (`UIBackgroundModes: ["remote-notification"]`)
+- ✅ Entitlements with push capabilities (`aps-environment: development`)
+
+**Step 3: Verify configuration (Important!)**
+
+After prebuild, verify the plugin worked correctly:
+
+1. **Check AppDelegate** (`ios/YourApp/AppDelegate.swift`):
+   - Should have `import EntrigSDK` and `import UserNotifications`
+   - Should have `UNUserNotificationCenterDelegate` conformance
+   - Should have Entrig notification methods
+
+2. **Check Info.plist** (`ios/YourApp/Info.plist`):
+   ```xml
+   <key>UIBackgroundModes</key>
+   <array>
+     <string>remote-notification</string>
+   </array>
+   ```
+
+3. **Check Entitlements** (`ios/YourApp/YourApp.entitlements`):
+   ```xml
+   <key>aps-environment</key>
+   <string>development</string>
+   ```
+
+<details>
+<summary><b>If the plugin didn't work (manual setup)</b></summary>
+
+If any of the above are missing after prebuild, add them manually:
+
+**1. Update AppDelegate.swift**
+
+Add imports at the top:
+```swift
+import UserNotifications
+import EntrigSDK
+```
+
+Add `UNUserNotificationCenterDelegate` to class declaration:
+```swift
+public class AppDelegate: ExpoAppDelegate, UNUserNotificationCenterDelegate {
+```
+
+Add setup in `didFinishLaunchingWithOptions` (right after the function opens):
+```swift
+public override func application(
+  _ application: UIApplication,
+  didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+) -> Bool {
+  // Entrig: Setup push notification handling
+  UNUserNotificationCenter.current().delegate = self
+  Entrig.checkLaunchNotification(launchOptions)
+
+  // ... rest of existing code
+}
+```
+
+Add notification methods before the closing brace `}` of AppDelegate:
+```swift
+// MARK: - Entrig Push Notification Handling
+
+public override func application(
+  _ application: UIApplication,
+  didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+) {
+  Entrig.didRegisterForRemoteNotifications(deviceToken: deviceToken)
+  super.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
+}
+
+public override func application(
+  _ application: UIApplication,
+  didFailToRegisterForRemoteNotificationsWithError error: Error
+) {
+  Entrig.didFailToRegisterForRemoteNotifications(error: error)
+  super.application(application, didFailToRegisterForRemoteNotificationsWithError: error)
+}
+
+public func userNotificationCenter(
+  _ center: UNUserNotificationCenter,
+  willPresent notification: UNNotification,
+  withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+) {
+  Entrig.willPresentNotification(notification)
+  completionHandler(Entrig.getPresentationOptions())
+}
+
+public func userNotificationCenter(
+  _ center: UNUserNotificationCenter,
+  didReceive response: UNNotificationResponse,
+  withCompletionHandler completionHandler: @escaping () -> Void
+) {
+  Entrig.didReceiveNotification(response)
+  completionHandler()
+}
+```
+
+**2. Update Info.plist** (`ios/YourApp/Info.plist`)
+
+Add this before the closing `</dict>` tag:
+```xml
+<key>UIBackgroundModes</key>
+<array>
+  <string>remote-notification</string>
+</array>
+```
+
+**3. Update Entitlements** (`ios/YourApp/YourApp.entitlements`)
+
+Replace the contents with:
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>aps-environment</key>
+    <string>development</string>
+  </dict>
+</plist>
+```
+
+> **Note:** Change `development` to `production` for App Store releases.
+
+</details>
+
 ---
 
 ## Troubleshooting
@@ -306,28 +433,6 @@ Then rebuild. Also ensure:
 
 </details>
 
-<details>
-<summary>Cannot read Config / env variables undefined</summary>
-
-`react-native-config` requires native setup on both platforms. The simplest alternative is [`react-native-dotenv`](https://github.com/goatandsheep/react-native-dotenv) (a Babel plugin — no native setup needed):
-
-```bash
-npm install react-native-dotenv
-```
-
-Add to `babel.config.js`:
-```js
-module.exports = {
-  plugins: [['module:react-native-dotenv']]
-};
-```
-
-Then import:
-```ts
-import { ENTRIG_API_KEY } from '@env';
-```
-
-</details>
 
 <details>
 <summary>pod install CocoaPods dependency errors</summary>
