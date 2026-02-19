@@ -2,7 +2,7 @@ import React
 import UserNotifications
 import EntrigSDK
 
-@objc(EntrigModule)
+@objc(Entrig)
 class EntrigModule: RCTEventEmitter {
   private var hasListeners = false
 

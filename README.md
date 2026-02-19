@@ -133,7 +133,7 @@ This automatically configures:
 Run this command in your project root:
 
 ```bash
-npx entrig-react-native ios
+npx @entrig/react-native setup ios
 ```
 
 This automatically configures:
@@ -156,6 +156,71 @@ This automatically configures:
 
 #### 2. Update AppDelegate.swift
 
+Add `import UserNotifications` and `import EntrigSDK`, add `UNUserNotificationCenterDelegate` conformance, then add the notification methods.
+
+**RN 0.74+ (new style — `UIResponder, UIApplicationDelegate`)**
+
+```swift
+import UIKit
+import React
+import React_RCTAppDelegate
+import ReactAppDependencyProvider
+import UserNotifications
+import EntrigSDK
+
+@main
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+  var window: UIWindow?
+  var reactNativeDelegate: ReactNativeDelegate?
+  var reactNativeFactory: RCTReactNativeFactory?
+
+  func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+  ) -> Bool {
+    UNUserNotificationCenter.current().delegate = self
+    Entrig.checkLaunchNotification(launchOptions)
+
+    let delegate = ReactNativeDelegate()
+    let factory = RCTReactNativeFactory(delegate: delegate)
+    delegate.dependencyProvider = RCTAppDependencyProvider()
+    reactNativeDelegate = delegate
+    reactNativeFactory = factory
+    window = UIWindow(frame: UIScreen.main.bounds)
+    factory.startReactNative(withModuleName: "YourApp", in: window, launchOptions: launchOptions)
+    return true
+  }
+
+  func application(_ application: UIApplication,
+                   didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    Entrig.didRegisterForRemoteNotifications(deviceToken: deviceToken)
+  }
+
+  func application(_ application: UIApplication,
+                   didFailToRegisterForRemoteNotificationsWithError error: Error) {
+    Entrig.didFailToRegisterForRemoteNotifications(error: error)
+  }
+
+  func userNotificationCenter(_ center: UNUserNotificationCenter,
+                               willPresent notification: UNNotification,
+                               withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+    Entrig.willPresentNotification(notification)
+    completionHandler(Entrig.getPresentationOptions())
+  }
+
+  func userNotificationCenter(_ center: UNUserNotificationCenter,
+                               didReceive response: UNNotificationResponse,
+                               withCompletionHandler completionHandler: @escaping () -> Void) {
+    Entrig.didReceiveNotification(response)
+    completionHandler()
+  }
+}
+```
+
+> Replace `"YourApp"` with your actual module name.
+
+**RN 0.71–0.73 (old style — `RCTAppDelegate`)**
+
 ```swift
 import UIKit
 import UserNotifications
@@ -163,52 +228,111 @@ import EntrigSDK
 
 @main
 class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
-    override func application(
-        _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-    ) -> Bool {
-        // Setup Entrig notification handling
-        UNUserNotificationCenter.current().delegate = self
-        Entrig.checkLaunchNotification(launchOptions)
+  override func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+  ) -> Bool {
+    UNUserNotificationCenter.current().delegate = self
+    Entrig.checkLaunchNotification(launchOptions)
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
 
-        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-    }
+  override func application(_ application: UIApplication,
+                             didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    Entrig.didRegisterForRemoteNotifications(deviceToken: deviceToken)
+    super.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
+  }
 
-    override func application(_ application: UIApplication,
-                            didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        Entrig.didRegisterForRemoteNotifications(deviceToken: deviceToken)
-        super.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
-    }
+  override func application(_ application: UIApplication,
+                             didFailToRegisterForRemoteNotificationsWithError error: Error) {
+    Entrig.didFailToRegisterForRemoteNotifications(error: error)
+    super.application(application, didFailToRegisterForRemoteNotificationsWithError: error)
+  }
 
-    override func application(_ application: UIApplication,
-                            didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        Entrig.didFailToRegisterForRemoteNotifications(error: error)
-        super.application(application, didFailToRegisterForRemoteNotificationsWithError: error)
-    }
+  func userNotificationCenter(_ center: UNUserNotificationCenter,
+                               willPresent notification: UNNotification,
+                               withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+    Entrig.willPresentNotification(notification)
+    completionHandler(Entrig.getPresentationOptions())
+  }
 
-    // MARK: - UNUserNotificationCenterDelegate
-    func userNotificationCenter(_ center: UNUserNotificationCenter,
-                                willPresent notification: UNNotification,
-                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        Entrig.willPresentNotification(notification)
-        completionHandler(Entrig.getPresentationOptions())
-    }
-
-    func userNotificationCenter(_ center: UNUserNotificationCenter,
-                                didReceive response: UNNotificationResponse,
-                                withCompletionHandler completionHandler: @escaping () -> Void) {
-        Entrig.didReceiveNotification(response)
-        completionHandler()
-    }
+  func userNotificationCenter(_ center: UNUserNotificationCenter,
+                               didReceive response: UNNotificationResponse,
+                               withCompletionHandler completionHandler: @escaping () -> Void) {
+    Entrig.didReceiveNotification(response)
+    completionHandler()
+  }
 }
 ```
 
 </details>
 
-<details>
-<summary>Troubleshooting pod install issues (click to expand)</summary>
+---
 
-If you encounter CocoaPods dependency errors, try cleaning and updating:
+## Troubleshooting
+
+<details>
+<summary>Native Entrig module not found (iOS)</summary>
+
+This means the `EntrigReactNative` pod was not installed. Run:
+
+```bash
+cd ios && pod install
+```
+
+Then rebuild the app. If the error persists, verify `EntrigReactNative` appears in `ios/Podfile.lock`:
+
+```bash
+grep "EntrigReactNative" ios/Podfile.lock
+```
+
+If it's missing, make sure you are on `@entrig/react-native` version that includes the root-level `EntrigReactNative.podspec` and re-run `pod install`.
+
+</details>
+
+<details>
+<summary>Push token not generated (iOS)</summary>
+
+The device token won't be generated if the AppDelegate is not configured. Run the setup command:
+
+```bash
+npx @entrig/react-native setup ios
+```
+
+Then rebuild. Also ensure:
+- Push Notifications capability is added in Xcode (Target → Signing & Capabilities)
+- You are testing on a **real device** (simulators cannot receive push notifications)
+- The APNs key is uploaded to your Entrig dashboard
+
+</details>
+
+<details>
+<summary>Cannot read Config / env variables undefined</summary>
+
+`react-native-config` requires native setup on both platforms. The simplest alternative is [`react-native-dotenv`](https://github.com/goatandsheep/react-native-dotenv) (a Babel plugin — no native setup needed):
+
+```bash
+npm install react-native-dotenv
+```
+
+Add to `babel.config.js`:
+```js
+module.exports = {
+  plugins: [['module:react-native-dotenv']]
+};
+```
+
+Then import:
+```ts
+import { ENTRIG_API_KEY } from '@env';
+```
+
+</details>
+
+<details>
+<summary>pod install CocoaPods dependency errors</summary>
+
+Try cleaning and reinstalling:
 
 ```bash
 cd ios

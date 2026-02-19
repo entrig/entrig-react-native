@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {ActivityIndicator, StatusBar, StyleSheet, View} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import Config from 'react-native-config';
+import {ENTRIG_API_KEY} from '@env';
 import Entrig from '@entrig/react-native';
 
 import {supabase} from './src/lib/supabase';
@@ -23,7 +23,7 @@ export default function App() {
   useEffect(() => {
     const initEntrig = async () => {
       try {
-        const apiKey = 'sk-proj-71610b55-a385841a82d6099f2133608d0631049e3863cc3e911a6674478f8a8c59c98f45';
+        const apiKey = ENTRIG_API_KEY;
         if (!apiKey) {
           console.warn('Entrig API key not found');
           return;

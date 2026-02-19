@@ -275,6 +275,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.entrig.demo;
+				CODE_SIGN_ENTITLEMENTS = "example/example.entitlements";
 				PRODUCT_NAME = example;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -305,6 +306,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.entrig.demo;
+				CODE_SIGN_ENTITLEMENTS = "example/example.entitlements";
 				PRODUCT_NAME = example;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_VERSION = 5.0;
