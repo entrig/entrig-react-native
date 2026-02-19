@@ -246,7 +246,23 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
 #### Expo (Managed Workflow)
 
-**Step 1: Add the config plugin**
+**Step 1: Configure your bundle identifier**
+
+Update your `app.json` with a proper bundle identifier (not the default Expo one):
+
+```json
+{
+  "expo": {
+    "ios": {
+      "bundleIdentifier": "com.yourcompany.yourapp"
+    }
+  }
+}
+```
+
+> **Important:** Don't use Expo's auto-generated bundle IDs (like `com.anonymous.*`). Use your own reverse-domain identifier.
+
+**Step 2: Add the config plugin**
 
 Add the plugin to your `app.json`:
 
@@ -258,21 +274,40 @@ Add the plugin to your `app.json`:
 }
 ```
 
-**Step 2: Run prebuild**
+**Step 3: Run prebuild**
 
 ```bash
 npx expo prebuild
-# or
+# or run directly (prebuild happens automatically)
 npx expo run:ios
 npx expo run:android
 ```
+
+> **Note:** `npx expo run:ios` automatically runs `npx expo prebuild` if the `ios/` folder doesn't exist. The plugin runs during prebuild and configures everything automatically.
 
 The plugin automatically configures:
 - ✅ AppDelegate with Entrig notification handlers (supports Expo SDK 54+)
 - ✅ Info.plist with background modes (`UIBackgroundModes: ["remote-notification"]`)
 - ✅ Entitlements with push capabilities (`aps-environment: development`)
 
-**Step 3: Verify configuration (Important!)**
+**Step 4: Enable Push Notifications in Apple Developer Portal**
+
+1. Go to [Apple Developer Portal](https://developer.apple.com/account/resources/identifiers/list)
+2. Select your Bundle ID (the one from your `app.json`)
+3. Enable "Push Notifications" capability
+4. Save
+
+**Step 5: Select your development team in Xcode**
+
+1. Open `ios/YourApp.xcworkspace` in Xcode
+2. Select your project in the navigator
+3. Go to "Signing & Capabilities" tab
+4. Select your **Team** from the dropdown
+5. Xcode will automatically generate the provisioning profile with push notifications
+
+> **Common error:** If you see "Your provisioning profile doesn't support Push Notifications", make sure you completed Step 4 and Step 5.
+
+**Step 6: Verify configuration (Optional)**
 
 After prebuild, verify the plugin worked correctly:
 
