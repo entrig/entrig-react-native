@@ -1,6 +1,6 @@
 {
   "name": "@entrig/react-native",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Entrig | Push Notifications for Supabase",
   "main": "build/index.js",
   "types": "build/index.d.ts",
