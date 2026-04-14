@@ -12,6 +12,7 @@ import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.entrig.sdk.Entrig
 import com.entrig.sdk.models.EntrigConfig
+import com.entrig.sdk.models.NotificationEvent
 
 class EntrigModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext), ActivityEventListener {
@@ -37,11 +38,11 @@ class EntrigModule(reactContext: ReactApplicationContext) :
     }
 
     Entrig.setOnForegroundNotificationListener { notification ->
-      sendEvent("onForegroundNotification", Arguments.makeNativeMap(notification.toMap() as Map<String, Any?>))
+      sendEvent("onForegroundNotification", notificationToWritableMap(notification, true))
     }
 
     Entrig.setOnNotificationOpenedListener { notification ->
-      sendEvent("onNotificationOpened", Arguments.makeNativeMap(notification.toMap() as Map<String, Any?>))
+      sendEvent("onNotificationOpened", notificationToWritableMap(notification, false))
     }
   }
 
@@ -140,10 +141,32 @@ class EntrigModule(reactContext: ReactApplicationContext) :
   fun getInitialNotification(promise: Promise) {
     val initialNotification = Entrig.getInitialNotification()
     if (initialNotification != null) {
-      promise.resolve(Arguments.makeNativeMap(initialNotification.toMap() as Map<String, Any?>))
+      promise.resolve(notificationToWritableMap(initialNotification, false))
     } else {
       promise.resolve(null)
     }
+  }
+
+  private fun notificationToWritableMap(
+    notification: NotificationEvent,
+    isForeground: Boolean
+  ): WritableMap {
+    val payload = Arguments.createMap().apply {
+      putString("title", notification.title ?: "")
+      putString("body", notification.body ?: "")
+      putBoolean("isForeground", isForeground)
+      if (notification.type != null) {
+        putString("type", notification.type)
+      } else {
+        putNull("type")
+      }
+      putMap(
+        "data",
+        Arguments.makeNativeMap((notification.data ?: emptyMap()) as Map<String, Any?>)
+      )
+    }
+
+    return payload
   }
 
   private fun needsNotificationPermission(): Boolean {

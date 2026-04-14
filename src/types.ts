@@ -1,7 +1,7 @@
 export type NotificationEvent = {
   title: string;
   body: string;
-  type: string;
+  type?: string | null;
   data: Record<string, any>;
   isForeground: boolean;
 };

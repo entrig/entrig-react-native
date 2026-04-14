@@ -93,12 +93,13 @@ class EntrigModule: RCTEventEmitter {
   @objc(getInitialNotification:withRejecter:)
   func getInitialNotification(resolver: @escaping RCTPromiseResolveBlock, rejecter: @escaping RCTPromiseRejectBlock) {
     if let event = Entrig.getInitialNotification() {
-      let payload: [String: Any] = [
+      var payload: [String: Any] = [
         "title": event.title ?? "",
         "body": event.body ?? "",
         "data": event.data ?? [:],
         "isForeground": false
       ]
+      payload["type"] = event.type as Any
       resolver(payload)
     } else {
       resolver(nil)
@@ -109,12 +110,13 @@ class EntrigModule: RCTEventEmitter {
   private func sendNotificationToJS(event: NotificationEvent, isForeground: Bool) {
     guard hasListeners else { return }
 
-    let payload: [String: Any] = [
+    var payload: [String: Any] = [
       "title": event.title ?? "",
       "body": event.body ?? "",
       "data": event.data ?? [:],
       "isForeground": isForeground
     ]
+    payload["type"] = event.type as Any
 
     if isForeground {
       sendEvent(withName: "onForegroundNotification", body: payload)
