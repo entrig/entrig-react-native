@@ -38,11 +38,11 @@ class EntrigModule(reactContext: ReactApplicationContext) :
     }
 
     Entrig.setOnForegroundNotificationListener { notification ->
-      sendEvent("onForegroundNotification", notificationToWritableMap(notification, true))
+      sendEvent("onForegroundNotification", notificationToWritableMap(notification))
     }
 
     Entrig.setOnNotificationOpenedListener { notification ->
-      sendEvent("onNotificationOpened", notificationToWritableMap(notification, false))
+      sendEvent("onNotificationOpened", notificationToWritableMap(notification))
     }
   }
 
@@ -141,20 +141,18 @@ class EntrigModule(reactContext: ReactApplicationContext) :
   fun getInitialNotification(promise: Promise) {
     val initialNotification = Entrig.getInitialNotification()
     if (initialNotification != null) {
-      promise.resolve(notificationToWritableMap(initialNotification, false))
+      promise.resolve(notificationToWritableMap(initialNotification))
     } else {
       promise.resolve(null)
     }
   }
 
   private fun notificationToWritableMap(
-    notification: NotificationEvent,
-    isForeground: Boolean
+    notification: NotificationEvent
   ): WritableMap {
     val payload = Arguments.createMap().apply {
       putString("title", notification.title ?: "")
       putString("body", notification.body ?: "")
-      putBoolean("isForeground", isForeground)
       if (notification.type != null) {
         putString("type", notification.type)
       } else {

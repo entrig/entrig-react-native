@@ -643,8 +643,10 @@ if (notification) {
 **NotificationEvent** contains:
 - `title` - Notification title
 - `body` - Notification body text
+- `type` - Optional custom type identifier (e.g., `"new_message"`, `"order_update"`)
 - `data` - Custom payload data from your database
-- `isForeground` - Whether the notification was received in the foreground
+
+> **Note:** If you select fields from a foreign table in the dashboard, those fields are nested under the related foreign key column using the `$_` prefix. For example, if your record has `user_id` and it references the `users` table, selected fields from `users` will be available like `data.$_user_id.name`.
 
 ---
 

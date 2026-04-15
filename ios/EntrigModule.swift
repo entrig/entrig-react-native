@@ -96,8 +96,7 @@ class EntrigModule: RCTEventEmitter {
       var payload: [String: Any] = [
         "title": event.title ?? "",
         "body": event.body ?? "",
-        "data": event.data ?? [:],
-        "isForeground": false
+        "data": event.data ?? [:]
       ]
       payload["type"] = event.type as Any
       resolver(payload)
@@ -113,8 +112,7 @@ class EntrigModule: RCTEventEmitter {
     var payload: [String: Any] = [
       "title": event.title ?? "",
       "body": event.body ?? "",
-      "data": event.data ?? [:],
-      "isForeground": isForeground
+      "data": event.data ?? [:]
     ]
     payload["type"] = event.type as Any
 

@@ -3,7 +3,6 @@ export type NotificationEvent = {
   body: string;
   type?: string | null;
   data: Record<string, any>;
-  isForeground: boolean;
 };
 
 export type EntrigConfig = {
