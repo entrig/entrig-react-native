@@ -71,7 +71,7 @@ class EntrigModule(reactContext: ReactApplicationContext) :
     val showForegroundNotification = if (config.hasKey("showForegroundNotification")) {
       config.getBoolean("showForegroundNotification")
     } else {
-      true
+      false
     }
     val entrigConfig = EntrigConfig(
       apiKey = apiKey,
@@ -90,7 +90,7 @@ class EntrigModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun register(userId: String, isDebug: Boolean?, promise: Promise) {
+  fun register(userId: String, sdkVersion: String?, isDebug: Boolean?, promise: Promise) {
     val activity = reactApplicationContext.currentActivity
     if (activity == null) {
       promise.reject("NO_ACTIVITY", "Activity not available")
@@ -100,12 +100,12 @@ class EntrigModule(reactContext: ReactApplicationContext) :
     if (needsNotificationPermission()) {
       requestNotificationPermission(activity) {
         // Proceed with registration regardless of permission result
-        doRegister(userId, activity, promise)
+        doRegister(userId, sdkVersion, activity, promise)
       }
       return
     }
 
-    doRegister(userId, activity, promise)
+    doRegister(userId, sdkVersion, activity, promise)
   }
 
   @ReactMethod
@@ -191,8 +191,8 @@ class EntrigModule(reactContext: ReactApplicationContext) :
     launcher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
   }
 
-  private fun doRegister(userId: String, activity: Activity, promise: Promise) {
-    Entrig.register(userId, activity, "react-native") { success, error ->
+  private fun doRegister(userId: String, sdkVersion: String?, activity: Activity, promise: Promise) {
+    Entrig.register(userId, activity, "react-native", sdkVersion) { success, error ->
       if (success) {
         promise.resolve(null)
       } else {

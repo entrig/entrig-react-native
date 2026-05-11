@@ -30,7 +30,7 @@ class EntrigModule: RCTEventEmitter {
     }
 
     let handlePermission = config["handlePermission"] as? Bool ?? true
-    let showForegroundNotification = config["showForegroundNotification"] as? Bool ?? true
+    let showForegroundNotification = config["showForegroundNotification"] as? Bool ?? false
     let entrigConfig = EntrigConfig(apiKey: apiKey, handlePermission: handlePermission, showForegroundNotification: showForegroundNotification)
 
     // Set up SDK listeners
@@ -46,8 +46,8 @@ class EntrigModule: RCTEventEmitter {
     }
   }
 
-  @objc(register:withIsDebug:withResolver:withRejecter:)
-  func register(userId: String, isDebugOverride: NSNumber?, resolver: @escaping RCTPromiseResolveBlock, rejecter: @escaping RCTPromiseRejectBlock) {
+  @objc(register:withSdkVersion:withIsDebug:withResolver:withRejecter:)
+  func register(userId: String, sdkVersion: String?, isDebugOverride: NSNumber?, resolver: @escaping RCTPromiseResolveBlock, rejecter: @escaping RCTPromiseRejectBlock) {
     let isDebug: Bool
     if let override = isDebugOverride {
       isDebug = override.boolValue
@@ -59,7 +59,7 @@ class EntrigModule: RCTEventEmitter {
       #endif
     }
 
-    Entrig.register(userId: userId, sdk: "react-native", isDebug: isDebug) { success, error in
+    Entrig.register(userId: userId, sdk: "react-native", sdkVersion: sdkVersion, isDebug: isDebug) { success, error in
       if success {
         resolver(nil)
       } else {

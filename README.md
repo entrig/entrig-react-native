@@ -646,7 +646,43 @@ if (notification) {
 - `type` - Optional custom type identifier (e.g., `"new_message"`, `"order_update"`)
 - `data` - Custom payload data from your database
 
-> **Note:** If you select fields from a foreign table in the dashboard, those fields are nested under the related foreign key column using the `$_` prefix. For example, if your record has `user_id` and it references the `users` table, selected fields from `users` will be available like `data.$_user_id.name`.
+### Payload Data Shape
+
+`event.data` only includes the fields you selected while configuring the notification in Entrig.
+
+- If you select a regular column, you receive its direct value.
+- If you select a foreign key column without selecting any fields from the related table, you receive the foreign key value directly.
+- If you select fields from the related table for that foreign key, you receive an object under the same foreign key field name.
+
+Example payloads:
+
+```json
+{
+  "message": "Hello",
+  "user_id": "6d4d6d9d-7f7e-4f0b-9f26-123456789abc"
+}
+```
+
+```json
+{
+  "message": "Hello",
+  "user_id": {
+    "name": "John"
+  }
+}
+```
+
+Access in React Native:
+
+```typescript
+const message = event.data?.message as string | undefined;
+const userIdValue = event.data?.user_id as string | undefined;
+
+const userObject = event.data?.user_id as
+  | { name?: string }
+  | undefined;
+const userName = userObject?.name;
+```
 
 ---
 

@@ -1,8 +1,8 @@
 PODS:
-  - EntrigReactNative (0.0.1):
-    - EntrigSDK (= 0.0.8-dev)
+  - EntrigReactNative (1.0.4):
+    - EntrigSDK (= 1.0.1)
     - React-Core
-  - EntrigSDK (0.0.8-dev)
+  - EntrigSDK (1.0.1)
   - FBLazyVector (0.84.0)
   - hermes-engine (250829098.0.7):
     - hermes-engine/Pre-built (= 250829098.0.7)
@@ -2223,8 +2223,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  EntrigReactNative: 9aa3075621cf9377fe87f55edda4afb22aee3dff
-  EntrigSDK: 21739f6b0e113041006adf1f830e5471a325a22a
+  EntrigReactNative: b93cc9aa7e02a4c6fe79c4d05b0e9a34434fb97e
+  EntrigSDK: 23e82053065cc6c52ce90db40229f9966bb3584e
   FBLazyVector: c12d2108050e27952983d565a232f6f7b1ad5e69
   hermes-engine: 82f9034faf4339a030c54a2c49f4c63305fbbf2e
   RCTDeprecation: 3280799c14232a56e5a44f92981a8ee33bc69fd9

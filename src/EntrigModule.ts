@@ -1,8 +1,10 @@
 import { NativeModules, NativeEventEmitter } from 'react-native';
+import packageJson from '../package.json';
 
 import { EntrigConfig, NotificationEvent } from './types';
 
 const RNEntrigModule = NativeModules.Entrig;
+const sdkVersion = packageJson.version;
 
 if (!RNEntrigModule) {
   throw new Error('Native Entrig module not found. Make sure you have linked the library correctly.');
@@ -18,7 +20,7 @@ class EntrigModuleClass {
   }
 
   async register(userId: string, isDebug?: boolean): Promise<void> {
-    return RNEntrigModule.register(userId, isDebug ?? null);
+    return RNEntrigModule.register(userId, sdkVersion, isDebug ?? null);
   }
 
   async requestPermission(): Promise<boolean> {

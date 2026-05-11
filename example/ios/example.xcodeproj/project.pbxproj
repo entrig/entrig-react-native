@@ -259,6 +259,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = example/example.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = F52RB7R9L6;
 				ENABLE_BITCODE = NO;
@@ -275,7 +276,6 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.entrig.demo;
-				CODE_SIGN_ENTITLEMENTS = "example/example.entitlements";
 				PRODUCT_NAME = example;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -291,6 +291,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = example/example.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = F52RB7R9L6;
 				INFOPLIST_FILE = example/Info.plist;
@@ -306,7 +307,6 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.entrig.demo;
-				CODE_SIGN_ENTITLEMENTS = "example/example.entitlements";
 				PRODUCT_NAME = example;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_VERSION = 5.0;

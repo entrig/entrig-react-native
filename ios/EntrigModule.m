@@ -8,6 +8,7 @@ RCT_EXTERN_METHOD(initialize:(NSDictionary *)config
                   withRejecter:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(register:(NSString *)userId
+                  withSdkVersion:(NSString *)sdkVersion
                   withIsDebug:(NSNumber *)isDebug
                   withResolver:(RCTPromiseResolveBlock)resolve
                   withRejecter:(RCTPromiseRejectBlock)reject)
