@@ -187,7 +187,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
   func userNotificationCenter(_ center: UNUserNotificationCenter,
                                didReceive response: UNNotificationResponse,
                                withCompletionHandler completionHandler: @escaping () -> Void) {
-    Entrig.didReceiveNotification(response)
+    Entrig.didReceiveNotificationResponse(response)
     completionHandler()
   }
 }
@@ -235,7 +235,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
   func userNotificationCenter(_ center: UNUserNotificationCenter,
                                didReceive response: UNNotificationResponse,
                                withCompletionHandler completionHandler: @escaping () -> Void) {
-    Entrig.didReceiveNotification(response)
+    Entrig.didReceiveNotificationResponse(response)
     completionHandler()
   }
 }
@@ -396,7 +396,7 @@ public func userNotificationCenter(
   didReceive response: UNNotificationResponse,
   withCompletionHandler completionHandler: @escaping () -> Void
 ) {
-  Entrig.didReceiveNotification(response)
+  Entrig.didReceiveNotificationResponse(response)
   completionHandler()
 }
 ```
@@ -498,6 +498,15 @@ import Entrig from '@entrig/react-native';
 // Initialize Entrig (call once at app startup)
 await Entrig.init({ apiKey: 'YOUR_ENTRIG_API_KEY' });
 ```
+
+**Init options:**
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `apiKey` | `string` | required | Your Entrig API key |
+| `showForegroundNotification` | `boolean` | `false` | Show a notification banner while the app is in the foreground |
+| `autoOpenDeeplink` | `boolean` | `false` | Automatically open the deeplink URL when a notification is tapped. Set to `false` to handle navigation yourself |
+| `handlePermission` | `boolean` | `true` | iOS only. Let the SDK request notification permission. Set to `false` to request it yourself via `Entrig.requestPermission()` |
 
 <details>
 <summary>How to get your Entrig API key (click to expand)</summary>
@@ -644,7 +653,87 @@ if (notification) {
 - `title` - Notification title
 - `body` - Notification body text
 - `type` - Optional custom type identifier (e.g., `"new_message"`, `"order_update"`)
+- `deeplink` - Optional deeplink URL (e.g., `"myapp://orders/123"`)
 - `data` - Custom payload data from your database
+
+### Deeplinks
+
+When a notification includes a deeplink, you can either let the SDK open it automatically or handle it yourself.
+
+**Automatic deeplink handling** (recommended):
+
+Enable `autoOpenDeeplink` so the SDK opens the URL when the user taps the notification — no listener needed:
+
+```typescript
+await Entrig.init({
+  apiKey: 'YOUR_ENTRIG_API_KEY',
+  autoOpenDeeplink: true,
+});
+```
+
+Then use React Native's [`Linking`](https://reactnative.dev/docs/linking) API to listen for incoming URLs and navigate:
+
+```typescript
+import { Linking } from 'react-native';
+
+// Cold start
+const url = await Linking.getInitialURL();
+if (url) handleDeeplink(url);
+
+// Warm/hot start
+Linking.addEventListener('url', ({ url }) => handleDeeplink(url));
+
+function handleDeeplink(url: string) {
+  // e.g. myapp://chat/GROUP_ID
+  const parsed = new URL(url);
+  if (parsed.host === 'chat') {
+    const groupId = parsed.pathname.slice(1);
+    // navigate to chat screen
+  }
+}
+```
+
+You'll also need to register the URL scheme on each platform:
+
+**Android** — add an intent filter to `android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<intent-filter>
+  <action android:name="android.intent.action.VIEW"/>
+  <category android:name="android.intent.category.DEFAULT"/>
+  <category android:name="android.intent.category.BROWSABLE"/>
+  <data android:scheme="myapp"/>
+</intent-filter>
+```
+
+**iOS** — add a URL scheme to `ios/YourApp/Info.plist`:
+
+```xml
+<key>CFBundleURLTypes</key>
+<array>
+  <dict>
+    <key>CFBundleURLSchemes</key>
+    <array>
+      <string>myapp</string>
+    </array>
+  </dict>
+</array>
+```
+
+**Manual deeplink handling** (if you need custom logic per notification):
+
+Leave `autoOpenDeeplink` disabled and read `event.deeplink` in your notification tap listener:
+
+```typescript
+useEntrigEvent('opened', (event) => {
+  if (event.deeplink) {
+    const uri = new URL(event.deeplink);
+    // navigate based on uri
+  }
+});
+```
+
+> Deeplinks are also available on the initial notification (`getInitialNotification()`) for cold-start taps.
 
 ### Payload Data Shape
 

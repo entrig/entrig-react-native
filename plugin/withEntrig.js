@@ -191,7 +191,7 @@ function patchSwiftAppDelegate(filePath) {
     didReceive response: UNNotificationResponse,
     withCompletionHandler completionHandler: @escaping () -> Void
   ) {
-    Entrig.didReceiveNotification(response)
+    Entrig.didReceiveNotificationResponse(response)
     completionHandler()
   }
 `;
@@ -286,7 +286,7 @@ function patchObjCAppDelegate(filePath) {
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
     didReceiveNotificationResponse:(UNNotificationResponse *)response
          withCompletionHandler:(void (^)(void))completionHandler {
-  [Entrig didReceiveNotification:response];
+  [Entrig didReceiveNotificationResponse:response];
   completionHandler();
 }
 

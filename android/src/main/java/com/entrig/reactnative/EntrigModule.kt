@@ -20,6 +20,8 @@ class EntrigModule(reactContext: ReactApplicationContext) :
   private val context: Context
     get() = reactApplicationContext
 
+  private var handlePermission = true
+
   override fun getName(): String = "Entrig"
 
   override fun initialize() {
@@ -68,15 +70,22 @@ class EntrigModule(reactContext: ReactApplicationContext) :
       return
     }
 
+    handlePermission = if (config.hasKey("handlePermission")) config.getBoolean("handlePermission") else true
     val showForegroundNotification = if (config.hasKey("showForegroundNotification")) {
       config.getBoolean("showForegroundNotification")
     } else {
       false
     }
+    val autoOpenDeeplink = if (config.hasKey("autoOpenDeeplink")) {
+      config.getBoolean("autoOpenDeeplink")
+    } else {
+      false
+    }
     val entrigConfig = EntrigConfig(
       apiKey = apiKey,
-      handlePermission = false, // Module handles permission itself
-      showForegroundNotification = showForegroundNotification
+      handlePermission = false, // Module always manages permission via ActivityResultRegistry
+      showForegroundNotification = showForegroundNotification,
+      autoOpenDeeplink = autoOpenDeeplink
     )
 
     val appCtx = context.applicationContext
@@ -97,7 +106,7 @@ class EntrigModule(reactContext: ReactApplicationContext) :
       return
     }
 
-    if (needsNotificationPermission()) {
+    if (handlePermission && needsNotificationPermission()) {
       requestNotificationPermission(activity) {
         // Proceed with registration regardless of permission result
         doRegister(userId, sdkVersion, activity, promise)
@@ -157,6 +166,11 @@ class EntrigModule(reactContext: ReactApplicationContext) :
         putString("type", notification.type)
       } else {
         putNull("type")
+      }
+      if (notification.deeplink != null) {
+        putString("deeplink", notification.deeplink)
+      } else {
+        putNull("deeplink")
       }
       putMap(
         "data",

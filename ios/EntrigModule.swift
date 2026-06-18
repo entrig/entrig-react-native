@@ -6,6 +6,12 @@ import EntrigSDK
 class EntrigModule: RCTEventEmitter {
   private var hasListeners = false
 
+  override init() {
+    super.init()
+    Entrig.setOnForegroundNotificationListener(self)
+    Entrig.setOnNotificationOpenedListener(self)
+  }
+
   override func supportedEvents() -> [String]! {
     return ["onForegroundNotification", "onNotificationOpened"]
   }
@@ -31,11 +37,8 @@ class EntrigModule: RCTEventEmitter {
 
     let handlePermission = config["handlePermission"] as? Bool ?? true
     let showForegroundNotification = config["showForegroundNotification"] as? Bool ?? false
-    let entrigConfig = EntrigConfig(apiKey: apiKey, handlePermission: handlePermission, showForegroundNotification: showForegroundNotification)
-
-    // Set up SDK listeners
-    Entrig.setOnForegroundNotificationListener(self)
-    Entrig.setOnNotificationOpenedListener(self)
+    let autoOpenDeeplink = config["autoOpenDeeplink"] as? Bool ?? false
+    let entrigConfig = EntrigConfig(apiKey: apiKey, handlePermission: handlePermission, showForegroundNotification: showForegroundNotification, autoOpenDeeplink: autoOpenDeeplink)
 
     Entrig.configure(config: entrigConfig) { success, error in
       if success {
@@ -99,6 +102,7 @@ class EntrigModule: RCTEventEmitter {
         "data": event.data ?? [:]
       ]
       payload["type"] = event.type as Any
+      payload["deeplink"] = event.deeplink as Any
       resolver(payload)
     } else {
       resolver(nil)
@@ -115,6 +119,7 @@ class EntrigModule: RCTEventEmitter {
       "data": event.data ?? [:]
     ]
     payload["type"] = event.type as Any
+    payload["deeplink"] = event.deeplink as Any
 
     if isForeground {
       sendEvent(withName: "onForegroundNotification", body: payload)
